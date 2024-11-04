@@ -111,6 +111,7 @@ public class MovementPlayer : MonoBehaviour {
         if (m_platform != null) {
             m_controller.Move(m_platform.position * Time.deltaTime);
         }
+
     }
 }
 
