@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,20 +18,24 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float groundDistance;
     [SerializeField] LayerMask groundMask;
     [SerializeField] float rotationSpeed;
+    [SerializeField] Transform m_handTransform;
 
     private Transform currentPlatform;
     private Vector3 lastPlatformPosition;
 
-    private void Start() {
+    private void Start()
+    {
         controller = GetComponent<CharacterController>();
         gravity = -9.81f;
         jumpHeight = 3f;
     }
 
-    void Update() {
+    void Update()
+    {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        if (isGrounded && velocity.y < 0) {
+        if (isGrounded && velocity.y < 0)
+        {
             velocity.y = -2f;
         }
 
@@ -39,13 +44,15 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 move = new Vector3(m_MoveX, 0, m_MoveZ);
 
-        if (move.magnitude > 0.1f) {
+        if (move.magnitude > 0.1f)
+        {
             controller.Move(move * speed * Time.deltaTime);
             Quaternion m_targetRotation = Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, m_targetRotation, Time.deltaTime * rotationSpeed);
         }
 
-        if (Input.GetButtonDown("Jump") && isGrounded) {
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
@@ -53,7 +60,8 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
 
         // Movimiento de la plataforma
-        if (currentPlatform != null) {
+        if (currentPlatform != null)
+        {
             Vector3 platformMovement = currentPlatform.position - lastPlatformPosition;
             //Vector3 rotationPos = Rotacion de la plataforma;
             //Player.rotation = transform.rotation + rotationPos;
@@ -78,15 +86,30 @@ public class PlayerMovement : MonoBehaviour
     //        currentPlatform = null;
     //    }
     //}
-    private void OnTriggerEnter(Collider other) {
-        if (other.CompareTag("Platform")) {
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Platform"))
+        {
             currentPlatform = other.transform;
             lastPlatformPosition = currentPlatform.position;
         }
+        if (other.CompareTag("Ungrabe"))// && Input.GetKeyDown(KeyCode.E))
+        {
+            other.transform.SetParent(transform, false);
+            other.transform.position = m_handTransform.position;
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        other.transform.SetParent(transform, false);
+        other.transform.position = m_handTransform.position;
+        other.GetComponent<Rigidbody>().isKinematic = true;
     }
 
-    private void OnTriggerExit(Collider other) {
-        if (other.CompareTag("Platform")) {
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Platform"))
+        {
             currentPlatform = null;
         }
     }
