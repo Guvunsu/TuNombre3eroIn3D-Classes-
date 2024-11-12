@@ -117,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.CompareTag("Ungrabe") && Input.GetKeyDown(KeyCode.E) && !isGrabbing)
         {
-            other.transform.SetParent(transform, false);//para el padre es false y true para el objeto
+            other.transform.SetParent(m_handTransform, false);//para el padre es false y true para el objeto
             other.transform.position = m_handTransform.position;
             other.GetComponent<Rigidbody>().isKinematic = true;
             StartCoroutine(timer());
