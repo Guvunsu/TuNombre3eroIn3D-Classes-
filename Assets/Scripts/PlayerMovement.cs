@@ -23,6 +23,8 @@ public class PlayerMovement : MonoBehaviour
     private Transform currentPlatform;
     private Vector3 lastPlatformPosition;
 
+    bool isGrabbing;
+
     private void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -68,6 +70,13 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(platformMovement); // Mueve el personaje con la plataforma
             lastPlatformPosition = currentPlatform.position;
         }
+        if (isGrabbing && Input.GetKeyDown(KeyCode.E))
+        {
+            GameObject temp_otherObj = m_handTransform.GetChild(0).gameObject;
+            temp_otherObj.transform.SetParent(null);
+            temp_otherObj.GetComponent<Rigidbody>().isKinematic = false;
+            isGrabbing = false;
+        }
     }
 
     //private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -99,11 +108,21 @@ public class PlayerMovement : MonoBehaviour
             other.transform.position = m_handTransform.position;
         }
     }
+    IEnumerator timer()
+    {
+        yield return new WaitForSeconds(0.3f);
+        isGrabbing = true;
+    }
     private void OnTriggerStay(Collider other)
     {
-        other.transform.SetParent(transform, false);
-        other.transform.position = m_handTransform.position;
-        other.GetComponent<Rigidbody>().isKinematic = true;
+        if (other.CompareTag("Ungrabe") && Input.GetKeyDown(KeyCode.E) && !isGrabbing)
+        {
+            other.transform.SetParent(transform, false);//para el padre es false y true para el objeto
+            other.transform.position = m_handTransform.position;
+            other.GetComponent<Rigidbody>().isKinematic = true;
+            StartCoroutine(timer());
+        }
+
     }
 
     private void OnTriggerExit(Collider other)
